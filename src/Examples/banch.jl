@@ -1,0 +1,556 @@
+function LeapfrogBanchTimeWindow(r,T)
+	D=[0.0,1.0];
+	Ini=[0.0,0.0];
+	f(x)=sin(π*x);
+	g(x)=0*x;
+	e(x,t)=sin(π*x)*cos(π*t)
+    Error = zeros(100,3);
+    i=1;
+    for N in 1:10:1000
+        for j in 1:20
+            τ = @elapsed begin
+                Y,h = LeapfrogWave(f,g,N,D,Ini,r,T);
+            end
+            E = []
+            x=D[1]:h:D[2];
+            t=r*h;
+            for y in Y
+				t=t+r*h;
+                E = push!(E,norm(y-e.(x,t),Inf))
+            end
+    		x=D[1]:h:D[2];
+            Error[i,1] = Error[i,1]+h;
+            Error[i,2] = Error[i,2]+norm(E,Inf);
+            Error[i,3] = Error[i,3]+τ;
+        end
+
+        Error[i,1] = Error[i,1]/20;
+        Error[i,2] = Error[i,2]/20;
+        Error[i,3] = Error[i,3]/20;
+
+		println("Error: ",Error[i,2]);
+        i=i+1;
+        println((N/1000)*100);
+    end
+    return Error;
+end
+function NewmarkBanchTimeWindow(r,T)
+	D=[0.0,1.0];
+	Ini=[0.0,0.0];
+	f(x)=sin(π*x);
+	g(x)=0*x;
+	e(x,t)=sin(π*x)*cos(π*t)
+    Error = zeros(100,3);
+    i=1;
+    for N in 1:10:1000
+        for j in 1:20
+            τ = @elapsed begin
+                Y,h = NewmarkWave(f,g,N,D,Ini,r,T);
+            end
+            E = []
+            x=D[1]:h:D[2];
+            t=0;
+            for y in Y
+                t=t+r*h
+                E = push!(E,norm(y-e.(x,t),Inf))
+            end
+    		x=D[1]:h:D[2];
+            Error[i,1] = Error[i,1]+h;
+            Error[i,2] = Error[i,2]+norm(E,Inf);
+            Error[i,3] = Error[i,3]+τ;
+        end
+        Error[i,1]=Error[i,1]/20;
+        Error[i,2]=Error[i,2]/20;
+        Error[i,3]=Error[i,3]/20;
+        i=i+1;
+        println((N/1000)*100)
+    end
+    return Error;
+end
+function MillerBanchTimeWindow(r,T)
+	D=[0.0,1.0];
+	Ini=[0.0,0.0];
+	f(x)=sin(π*x);
+	g(x)=0*x;
+	e(x,t)=sin(π*x)*cos(π*t)
+    Error = zeros(100,3);
+    i=1;
+    for N in 1:10:1000
+        for j in 1:20
+            τ = @elapsed begin
+                Y,h = MillerWave(f,g,N,D,Ini,r,T);
+            end
+            E = []
+            x=D[1]:h:D[2];
+            t=r*h;
+            for y in Y
+                t=t+(r*h);
+                E = push!(E,norm(y-e.(x,t),Inf))
+            end
+    		x=D[1]:h:D[2];
+            Error[i,1] = Error[i,1]+h;
+            Error[i,2] = Error[i,2]+norm(E,Inf);
+            Error[i,3] = Error[i,3]+τ;
+        end
+        Error[i,1]=Error[i,1]/20;
+        Error[i,2]=Error[i,2]/20;
+        Error[i,3]=Error[i,3]/20;
+        i=i+1;
+        println((N/1000)*100)
+    end
+    return Error;
+end
+function MillerBanchTimeStep(T)
+	D=[0.0,1.0];
+	Ini=[0.0,0.0];
+	f(x)=sin(π*x);
+	g(x)=0*x;
+	e(x,t)=sin(π*x)*cos(π*t)
+    Error = zeros(100,3);
+    i=1;
+	N=10000-1;
+	Δx=(D[2]-D[1])/(N+1);
+    for r in 1:10:1000
+		println((r/1000)*100)
+        for j in 1:1
+            τ = @elapsed begin
+                Y,h = MillerWave(f,g,N,D,Ini,r,T);
+            end
+            E = []
+            x=D[1]:h:D[2];
+            t=r*h;
+            for y in Y
+                t=t+(r*h);
+                E = push!(E,norm(y-e.(x,t),Inf))
+            end
+            Error[i,1] = Error[i,1]+r;
+            Error[i,2] = Error[i,2]+r*h;
+            Error[i,3] = Error[i,3]+norm(E,Inf);
+        end
+        Error[i,1]=Error[i,1]/1;
+        Error[i,2]=Error[i,2]/1;
+        Error[i,3]=Error[i,3]/1;
+        i=i+1;
+    end
+    return Error, Δx;
+end
+function MillerBanchSpaceStep(T)
+	D=[0.0,1.0];
+	Ini=[0.0,0.0];
+	f(x)=sin(π*x);
+	g(x)=0*x;
+	e(x,t)=sin(π*x)*cos(π*t)
+    Error = zeros(100,3);
+    i=1;
+	Δt = 10^(-4);
+    for N in 1:10:1000
+		println((N/1000)*100)
+		Δx=(D[2]-D[1])/(N+1);
+		r = (Δt/Δx);
+        for j in 1:1
+            τ = @elapsed begin
+                Y,h = MillerWave(f,g,N,D,Ini,r,T);
+            end
+            E = []
+            x=D[1]:h:D[2];
+            t=r*h;
+            for y in Y
+                t=t+(r*h);
+                E = push!(E,norm(y-e.(x,t),Inf))
+            end
+            Error[i,1] = Error[i,1]+N;
+            Error[i,2] = Error[i,2]+h;
+            Error[i,3] = Error[i,3]+norm(E,Inf);
+        end
+        Error[i,1]=Error[i,1]/1;
+        Error[i,2]=Error[i,2]/1;
+        Error[i,3]=Error[i,3]/1;
+        i=i+1;
+    end
+    return Error, Δt;
+end
+function NewmarkBanchSpaceStep(T)
+	D=[0.0,1.0];
+	Ini=[0.0,0.0];
+	f(x)=sin(π*x);
+	g(x)=0*x;
+	e(x,t)=sin(π*x)*cos(π*t)
+    Error = zeros(100,3);
+    i=1;
+	N=2000;
+	Δt = 10^(-4);
+    for N in 1:10:1000
+		println((N/1000)*100)
+		Δx=(D[2]-D[1])/(N+1);
+		r = (Δt/Δx);
+        for j in 1:1
+            τ = @elapsed begin
+                Y,h = NewmarkWave(f,g,N,D,Ini,r,T);
+            end
+            E = []
+            x=D[1]:h:D[2];
+            t=0;
+            for y in Y
+                t=t+r*h
+                E = push!(E,norm(y-e.(x,t),Inf))
+            end
+    		x=D[1]:h:D[2];
+            Error[i,1] = Error[i,1]+N;
+            Error[i,2] = Error[i,2]+h;
+            Error[i,3] = Error[i,3]+norm(E,Inf);
+        end
+        Error[i,1]=Error[i,1]/1;
+        Error[i,2]=Error[i,2]/1;
+        Error[i,3]=Error[i,3]/1;
+        i=i+1;
+    end
+    return Error, Δt;
+end
+function NewmarkBanchTimeStep(T)
+	D=[0.0,1.0];
+	Ini=[0.0,0.0];
+	f(x)=sin(π*x);
+	g(x)=0*x;
+	e(x,t)=sin(π*x)*cos(π*t)
+    Error = zeros(100,3);
+    i=1;
+	N=10000-1;
+	Δx=(D[2]-D[1])/(N+1);
+    for r in 1:10:1000
+		println((r/1000)*100)
+        for j in 1:1
+            τ = @elapsed begin
+                Y,h = NewmarkWave(f,g,N,D,Ini,r,T);
+            end
+            E = []
+            x=D[1]:h:D[2];
+            t=0;
+            for y in Y
+                t=t+r*h
+                E = push!(E,norm(y-e.(x,t),Inf))
+            end
+    		x=D[1]:h:D[2];
+            Error[i,1] = Error[i,1]+r;
+            Error[i,2] = Error[i,2]+r*h;
+            Error[i,3] = Error[i,3]+norm(E,Inf);
+        end
+        Error[i,1]=Error[i,1]/1;
+        Error[i,2]=Error[i,2]/1;
+        Error[i,3]=Error[i,3]/1;
+        i=i+1;
+    end
+    return Error, Δx;
+end
+function MillerZBanchTimeWindow(r,T)
+	D=[0.0,1.0];
+	Ini=[0.0,0.0];
+	f(x)=sin(π*x);
+	g(x)=0*x;
+	e(x,t)=sin(π*x)*cos(π*t)
+    Error = zeros(100,3);
+    i=1;
+    for N in 1:10:1000
+        for j in 1:20
+            τ = @elapsed begin
+                Y,h = MillerZWave(f,g,N,D,Ini,r,T);
+            end
+            E = []
+            x=D[1]:h:D[2];
+            t=r*h;
+            for y in Y
+                t=t+(r*h);
+                E = push!(E,norm(y-e.(x,t),Inf))
+            end
+    		x=D[1]:h:D[2];
+            Error[i,1] = Error[i,1]+h;
+            Error[i,2] = Error[i,2]+norm(E,Inf);
+            Error[i,3] = Error[i,3]+τ;
+        end
+        Error[i,1]=Error[i,1]/20;
+        Error[i,2]=Error[i,2]/20;
+        Error[i,3]=Error[i,3]/20;
+        i=i+1;
+        println((N/1000)*100)
+    end
+    return Error;
+end
+function SpeedLeapfrogBanchTimeWindow(r,T,v)
+	D=[0.0,1.0];
+	Ini=[0.0,0.0];
+	f(x)=sin(π*x);
+	g(x)=0*x;
+	e(x,t)=sin(π*x)*cos(π*t*v)
+    Error = zeros(100,3);
+    i=1;
+    for N in 1:10:1000
+        for j in 1:20
+            τ = @elapsed begin
+                Y,h = LeapfrogWave(f,g,N,D,Ini,r,T,v);
+            end
+            E = []
+            x=D[1]:h:D[2];
+            t=r*h;
+            for y in Y
+                t=t+r*h
+                E = push!(E,norm(y-e.(x,t),Inf))
+            end
+    		x=D[1]:h:D[2];
+            Error[i,1] = Error[i,1]+h;
+            Error[i,2] = Error[i,2]+norm(E,Inf);
+            Error[i,3] = Error[i,3]+τ;
+        end
+        Error[i,1] = Error[i,1]/20;
+        Error[i,2] = Error[i,2]/20;
+        Error[i,3] = Error[i,3]/20;
+        i=i+1;
+        println((N/1000)*100);
+    end
+    return Error;
+end
+function SpeedNewmarkBanchTimeWindow(r,T,v)
+	D=[0.0,1.0];
+	Ini=[0.0,0.0];
+	f(x)=sin(π*x);
+	g(x)=0*x;
+	e(x,t)=sin(π*x)*cos(π*t*v)
+    Error = zeros(100,3);
+    i=1;
+    for N in 1:10:1000
+        for j in 1:20
+            τ = @elapsed begin
+                Y,h = NewmarkWave(f,g,N,D,Ini,r,T,v);
+            end
+            E = []
+            x=D[1]:h:D[2];
+            t=0;
+            for y in Y
+                t=t+r*h
+                E = push!(E,norm(y-e.(x,t),Inf))
+            end
+    		x=D[1]:h:D[2];
+            Error[i,1] = Error[i,1]+h;
+            Error[i,2] = Error[i,2]+norm(E,Inf);
+            Error[i,3] = Error[i,3]+τ;
+        end
+        Error[i,1] = Error[i,1]/20;
+        Error[i,2] = Error[i,2]/20;
+        Error[i,3] = Error[i,3]/20;
+        i=i+1;
+        println((N/1000)*100);
+    end
+    return Error;
+end
+function SpeedMillerBanchTimeWindow(r,T,v)
+	D=[0.0,1.0];
+	Ini=[0.0,0.0];
+	f(x)=sin(π*x);
+	g(x)=0*x;
+	e(x,t)=sin(π*x)*cos(π*t*v)
+    Error = zeros(100,3);
+    i=1;
+    for N in 1:10:1000
+        for j in 1:20
+            τ = @elapsed begin
+                Y,h = MillerWave(f,g,N,D,Ini,r,T,v);
+            end
+            E = []
+            x=D[1]:h:D[2];
+            t=r*h;
+            for y in Y
+                t=t+(r*h);
+				E = push!(E,norm(y-e.(x,t),Inf))
+            end
+    		x=D[1]:h:D[2];
+            Error[i,1] = Error[i,1]+h;
+            Error[i,2] = Error[i,2]+norm(E,Inf);
+            Error[i,3] = Error[i,3]+τ;
+        end
+        Error[i,1] = Error[i,1]/20;
+        Error[i,2] = Error[i,2]/20;
+        Error[i,3] = Error[i,3]/20;
+        i=i+1;
+        println((N/1000)*100);
+    end
+    return Error;
+end
+function WaveBanch(opt)
+	##########
+	#[1] Benchmark the Leapfrog method v=1. Showing CFL
+	#[2] Benchmark the Miller method v=1;
+	#[3] Benchmark the Newmark mathod v=1;
+	#[4] Comparison of the Performance for v=1
+	#[5] Benchmark and Comparison of the Performance for v=2.8
+    r=[0.5,0.99,0.75,1.05,1.5]
+    if opt==1
+        ############| LEAPFROG |##########
+        figure()
+        for i in 1:5
+            R3 = LeapfrogBanchTimeWindow(r[i],[0.0,π/2]);
+            loglog(R3[:,1],R3[:,2],marker="o",label=string("Leapfrog r=",round(r[i];digits=1)))
+        end
+        title(L"Leapfrog Method Error Evaluated in t=$ [0,\frac{\pi}{2}]$, $v=1$, $||\cdot||_2$")
+        legend(loc=0,borderaxespad=0);
+		ylim(10^(-8),10^(10));
+		println(R3);
+        figure()
+        for i in 1:2
+             R4 = LeapfrogBanchTimeWindow(r[i],[0,π/2]);
+             loglog(R4[:,3],R4[:,2],marker="o",label=string("Leapfrog r=",round(r[i];digits=1)))
+        end
+        title(L"Leapfrog Method Performance Evaluated in t=$ [0,\frac{\pi}{2}]$, $v=1$, $||\cdot||_2$")
+        legend(loc=0,borderaxespad=0);
+
+    elseif opt==2
+        ##########| MILLER-GRIFFITHS|##########
+        figure()
+        for i in 1:5
+            R3 = MillerBanchTimeWindow(r[i],[0,π/2]);
+            loglog(R3[:,1],R3[:,2],marker="o",label=string("Miller-Griffiths r=",round(r[i];digits=1)))
+        end
+        title(L"Miller Griffiths Scheme Error Evaluated in t=$ [0,\frac{\pi}{2}]$, $v=1$, $||\cdot||_\infty$")
+        legend(loc=0,borderaxespad=0);
+        figure()
+        for i in 1:5
+            R3 = MillerBanchTimeWindow(r[i],[0,π/2]);
+            loglog(R3[:,2],R3[:,3],marker="o",label=string("Miller-Griffiths r=",round(r[i];digits=1)))
+        end
+        title(L"Miller Griffiths Scheme Performance Evaluated in t=$ [0,\frac{\pi}{2}]$, $v=1$, $||\cdot||_\infty$")
+        legend(loc=0,borderaxespad=0);
+    elseif opt==3
+        figure()
+        for i in 1:5
+            R3 = NewmarkBanchTimeWindow(r[i],[0,π/2]);
+            loglog(R3[:,1],R3[:,2],marker="o",label=string("Newmark r=",round(r[i];digits=1)))
+        end
+        title(L"Newmark Integration Error Evaluated in t=$ [0,\frac{\pi}{2}]$, $v=1$, $||\cdot||_\infty$")
+        legend(loc=0,borderaxespad=0);
+        figure()
+        for i in 1:5
+            R3 = NewmarkBanchTimeWindow(r[i],[0,π/2]);
+            loglog(R3[:,2],R3[:,3],marker="o",label=string("Newmark r=",round(r[i];digits=1)))
+        end
+        title(L"Newmark Integration Performance Evaluated in t=$ [0,\frac{\pi}{2}]$, $v=1$, $||\cdot||_\infty$")
+        legend(loc=0,borderaxespad=0);
+    elseif opt==4
+        ##########| COMPARED |##########
+        figure()
+        R1 = LeapfrogBanchTimeWindow(0.98,[0,π/2]);
+		R6 = LeapfrogBanchTimeWindow(0.5,[0,π/2]);
+        R2= NewmarkBanchTimeWindow(1.0,[0,π/2]);
+        R3= NewmarkBanchTimeWindow(5.0,[0,π/2]);
+        R5= MillerBanchTimeWindow(5.0,[0,π/2]);
+        R4 = MillerBanchTimeWindow(1.0,[0,π/2]);
+        loglog(R1[:,3],R1[:,2],marker="o",label=string("Leapfrog r=1"))
+		loglog(R6[:,3],R6[:,2],marker="o",label=string("Leapfrog r=0.5"))
+        loglog(R4[:,3],R4[:,2],marker="o",label=string("Miller-Griffiths r=1"))
+        loglog(R2[:,3],R2[:,2],marker="o",label=string("Newmark r=1"))
+        loglog(R5[:,3],R5[:,2],marker="o",label=string("Miller-Griffiths r=5"))
+        loglog(R3[:,3],R3[:,2],marker="o",label=string("Newmark r=5"))
+        legend(loc=2,borderaxespad=0);
+        title(L"Performance Comparison $c=1$, $||\cdot||_\infty$");
+	elseif opt == 5
+		figure()
+		R1 = SpeedLeapfrogBanchTimeWindow(0.35,[0,π/2],2.8);
+		R2= SpeedLeapfrogBanchTimeWindow(0.75,[0,π/2],2.8);
+		R3= SpeedLeapfrogBanchTimeWindow(1.0,[0,π/2],2.8);
+		loglog(R1[2:100,1],R1[2:100,2],marker="o",label=string("Leapfrog r=0.35"))
+		loglog(R2[2:100,1],R2[2:100,2],marker="o",label=string("Leapfrog r=0.75"))
+		loglog(R3[2:100,1],R3[2:100,2],marker="o",label=string("Leapfrog r=1"))
+		title(L"Leapfrog Method Error Evaluated in $[0,\frac{\pi}{2}]$, $v=2.8m/s$")
+		legend(loc=0,borderaxespad=0);
+
+
+		figure()
+		R4 = SpeedNewmarkBanchTimeWindow(0.35,[0,π/2],2.8);
+		R5= SpeedNewmarkBanchTimeWindow(0.75,[0,π/2],2.8);
+		R6= SpeedNewmarkBanchTimeWindow(1.0,[0,π/2],2.8);
+		loglog(R4[2:100,1],R4[2:100,2],marker="o",label=string("Newmark r=0.35"))
+    	loglog(R5[2:100,1],R5[2:100,2],marker="o",label=string("Newmark r=0.75"))
+		loglog(R6[2:100,1],R6[2:100,2],marker="o",label=string("Newmark r=1"))
+		title(L"Newmark Method Error Evaluated in $[0,\frac{\pi}{2}]$, $v=2.8m/s$")
+		legend(loc=0,borderaxespad=0);
+
+		figure()
+		R7 =SpeedMillerBanchTimeWindow(0.35,[0,π/2],2.8);
+		R8= SpeedMillerBanchTimeWindow(0.75,[0,π/2],2.8);
+		R9= SpeedMillerBanchTimeWindow(1.0,[0,π/2],2.8);
+		loglog(R7[2:100,1],R7[2:100,2],marker="o",label=string("Miller-Griffiths r=0.35"))
+    	loglog(R8[2:100,1],R8[2:100,2],marker="o",label=string("Miller-Griffiths r=0.75"))
+		loglog(R9[2:100,1],R9[2:100,2],marker="o",label=string("Miller-Griffiths r=1"))
+		title(L"Miller-Griffiths Method Error Evaluated in $[0,\frac{\pi}{2}]$, $v=2.8m/s$")
+		legend(loc=0,borderaxespad=0);
+	elseif opt == 6
+		figure()
+		R1 = SpeedLeapfrogBanchTimeWindow(0.35,[0,π/2],2.8);
+		R2 = SpeedMillerBanchTimeWindow(1,[0,π/2],2.8);
+		R3 = SpeedMillerBanchTimeWindow(5,[0,π/2],2.8);
+		R4 = SpeedNewmarkBanchTimeWindow(0.75,[0,π/2],2.8);
+		R5 = SpeedNewmarkBanchTimeWindow(1,[0,π/2],2.8);
+		loglog(R1[2:100,2],R1[2:100,3],marker="o",label=string("Leapfrog r=0.35"))
+    	loglog(R2[2:100,2],R2[2:100,3],marker="o",label=string("Miller-Griffiths r=1"))
+		loglog(R3[2:100,2],R3[2:100,3],marker="o",label=string("Miller-Griffiths r=5"))
+    	loglog(R4[2:100,2],R4[2:100,3],marker="o",label=string("Newmark r=0.75"))
+		loglog(R5[2:100,2],R5[2:100,3],marker="o",label=string("Newmark r=1"))
+		title(L"Performance Comparison in $[0,\frac{\pi}{2}]$, $v=2.8m/s$, $||\cdot||_\infty$")
+		legend(loc=0,borderaxespad=0);
+
+	elseif opt == 7
+		figure()
+		R1 = SpeedLeapfrogBanchTimeWindow(0.1,[0,π/2],10);
+		R2 = SpeedMillerBanchTimeWindow(0.5,[0,π/2],10);
+		R3 = SpeedMillerBanchTimeWindow(1,[0,π/2],10);
+		R4 = SpeedNewmarkBanchTimeWindow(0.5,[0,π/2],10);
+		R5 = SpeedNewmarkBanchTimeWindow(1,[0,π/2],10);
+		loglog(R1[2:100,2],R1[2:100,3],marker="o",label=string("Leapfrog r=0.1"))
+    	loglog(R2[2:100,2],R2[2:100,3],marker="o",label=string("Miller-Griffiths r=0.5"))
+		loglog(R3[2:100,2],R3[2:100,3],marker="o",label=string("Miller-Griffiths r=1"))
+    	loglog(R4[2:100,2],R4[2:100,3],marker="o",label=string("Newmark r=0.5"))
+		loglog(R5[2:100,2],R5[2:100,3],marker="o",label=string("Newmark r=1"))
+		title(L"Performance Comparison in $[0,\frac{\pi}{2}]$, $v=2.8m/s$, $||\cdot||_\infty$")
+		legend(loc=0,borderaxespad=0);
+	elseif opt==8
+		##########| MILLER-GRIFFITHS MODIFICATO|##########
+		figure()
+		for i in 1:5
+			R3 = MillerZBanchTimeWindow(r[i],[0,π/2]);
+			loglog(R3[:,1],R3[:,2],marker="o",label=string("Miller-Griffiths r=",round(r[i];digits=1)))
+		end
+		title(L"Miller Griffiths Scheme Error Evaluated in t=$ [0,\frac{\pi}{2}]$, $v=1$, $||\cdot||_\infty$")
+		legend(loc=0,borderaxespad=0);
+		figure()
+		for i in 1:5
+			R3 = MillerZBanchTimeWindow(r[i],[0,π/2]);
+			loglog(R3[:,2],R3[:,3],marker="o",label=string("Miller-Griffiths r=",round(r[i];digits=1)))
+		end
+		title(L"Miller Griffiths Scheme Performance Evaluated in t=$ [0,\frac{\pi}{2}]$, $v=1$, $||\cdot||_\infty$")
+		legend(loc=0,borderaxespad=0);
+	elseif opt==9
+		figure()
+		R1, Δx = MillerBanchTimeStep([0.0,π/2]);
+		loglog(R1[:,2],R1[:,3],marker="o",label="Miller-Griffiths");
+		ylabel(L"Error $ ||\cdot||_\infty $");
+		xlabel(L"Time Step $h_t$")
+		title(string(L"Miller-Griffiths Scheme Error vs Time Step, $ h_x $=",Δx));
+		figure()
+		R2, Δx = NewmarkBanchTimeStep([0.0,π/2]);
+		loglog(R2[:,2],R2[:,3],marker="o",label="Miller-Griffiths");
+		ylabel(L"Error $ ||\cdot||_\infty $");
+		xlabel(L"Time Step $h_t$")
+		title(string(L"Newmark Integration Error vs Time Step, $ h_x $=",Δx));
+		return R1, R2;
+	elseif opt==10
+		figure()
+		R1, Δx = MillerBanchSpaceStep([0.0,π/2]);
+		loglog(R1[:,2],R1[:,3],marker="o",label="Miller-Griffiths");
+		ylabel(L"Error $ ||\cdot||_\infty $");
+		xlabel(L"Time Step $h_x$")
+		title(string(L"Miller-Griffiths Scheme Error vs Time Step, $ h_t $=",Δx));
+		figure()
+		R2, Δx = NewmarkBanchSpaceStep([0.0,π/2]);
+		loglog(R2[:,2],R2[:,3],marker="o",label="Miller-Griffiths");
+		ylabel(L"Error $ ||\cdot||_\infty $");
+		xlabel(L"Time Step $h_x$")
+		title(string(L"Newmark Integration Error vs Time Step, $ h_t $=",Δx));
+		return R1, R2;
+	end
+end
