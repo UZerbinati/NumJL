@@ -114,6 +114,5 @@ function CGExample()
 	figure(3);
 	plot(ea);
 	title("Error for Low Rank Approximation Search Step");
-	return [[p,pp]
-
+	return [[p,pp]]
 end
