@@ -69,9 +69,10 @@ function WaveMediumExample(Auto=true)
 	D=[0.0,1.0];
 	Ini=[0.0,0.0];
 	f(x)=exp((-(x-0.2)^2)/(2*0.001));
+	#f(x) =  cos(4*pi*x+0.5*pi);
 	g(x)=0*x;
 	h=(D[2]-D[1])/(N+1);
-	r=0.2;
+	r=0.5;
 	t = r*h;
 	err = [];
 	while 0 < t < 2
@@ -295,9 +296,11 @@ function ForcedWaveExample(Auto=true)
 end
 function waveExample2D(Auto=true)
 	#f(x,y)=(x*(1-x))*(y*(1-y));
-	μx=0; μy=1; σ=0.1;
-	μx2=0; μy2=-1;
-	f(x,y)=exp((-(x-μx)^2)/(2*σ^2)) * exp((-(y-μy)^2)/(2*σ^2))+exp((-(x-μx2)^2)/(2*σ^2)) * exp((-(y-μy2)^2)/(2*σ^2));
+	#μx=0; μy=1; σ=0.1;
+	#μx2=0; μy2=-1;
+	#f(x,y)=exp((-(x-μx)^2)/(2*σ^2)) * exp((-(y-μy)^2)/(2*σ^2))+exp((-(x-μx2)^2)/(2*σ^2)) * exp((-(y-μy2)^2)/(2*σ^2));
+	sigma = [0.15 0.1; 0.1 0.15];
+	f(x,y) = (1/sqrt((2*pi)^2))*(1/sqrt(det(sigma))) * exp(-0.5*transpose([x,y])*inv(sigma)*[x,y]);
 	∂f(x,y)=0;
 	D=-4:0.05:4;
 	N=100;

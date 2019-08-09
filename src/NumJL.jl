@@ -1,6 +1,7 @@
 module NumJL
 	using LinearAlgebra
 	using SparseArrays
+	using Dierckx
 
 	#Only used in some specific case, methods should work even without.
 	using PyPlot
@@ -11,6 +12,7 @@ module NumJL
 	include("Zeros.jl");
 	include("ODE.jl");
 	include("PDE.jl");
+	include("Geometry.jl");
 
 	#GPU ACCELERATIOn
 
