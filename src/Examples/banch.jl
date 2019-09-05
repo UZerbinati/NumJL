@@ -4,7 +4,7 @@ function LeapfrogBanchTimeWindow(r,T)
 	f(x)=sin(π*x);
 	g(x)=0*x;
 	e(x,t)=sin(π*x)*cos(π*t)
-    Error = zeros(100,3);
+    Error = zeros(100,5);
     i=1;
     for N in 1:10:1000
         for j in 1:20
@@ -12,27 +12,69 @@ function LeapfrogBanchTimeWindow(r,T)
                 Y,h = LeapfrogWave(f,g,N,D,Ini,r,T);
             end
             E = []
+	    Amp = [];
             x=D[1]:h:D[2];
             t=r*h;
             for y in Y
-				t=t+r*h;
+		t=t+r*h;
+		A = maximum(e.(x,t));
                 E = push!(E,norm(y-e.(x,t),Inf))
+		Amp = push!(Amp,abs(A-maximum(y)));
             end
     		x=D[1]:h:D[2];
             Error[i,1] = Error[i,1]+h;
             Error[i,2] = Error[i,2]+norm(E,Inf);
             Error[i,3] = Error[i,3]+τ;
+	    Error[i,4] = Error[i,4]+(sum(Amp)/length(Amp));
         end
 
         Error[i,1] = Error[i,1]/20;
         Error[i,2] = Error[i,2]/20;
         Error[i,3] = Error[i,3]/20;
+	Error[i,4] = Error[i,4]/20;
 
-		println("Error: ",Error[i,2]);
+	#println("Error: ",Error[i,2]);
         i=i+1;
         println((N/1000)*100);
     end
     return Error;
+end
+function BanchDispersion(r)
+	Omega = zeros(100,4);
+	for N in 1:1:100
+		D=[0.0,1.0];
+		h = (D[2]-D[1])/(N+1);
+		dt = r*h;
+		d1=(-1)*ones(1,N-1);
+		d2=[];
+		for i in 1:length(d1)+1
+			d2=push!(d2,2);
+		end
+		d2=convert(Array{Float64}, d2);
+		A=spdiagm(-1=>d1[1,:],0=>d2,1=>d1[1,:]);
+		A=(1/(h^2))*A;
+
+		Ω1 = [];
+		Ω2 = [];
+		Ω3 = [];	
+
+		for eig in eigvals(Matrix(A))
+			ω1 = (2/dt)*asin(sqrt((0.25*dt^2)*eig));
+			Ω1 = push!(Ω1,ω1);
+
+			ω2 = sqrt(eig);
+			Ω2 = push!(Ω2,ω2);
+
+			ω3 = (1/dt)*acos((1-0.25*eig*dt^2)/(0.25*(eig*dt^2)+1));
+			Ω3 = push!(Ω3,ω3);
+		end
+		#println("Numerical anglar speed: ",Ω[1]);
+		Omega[N,1]=h;
+		Omega[N,2]=abs(π-Ω1[1]);
+		Omega[N,3]=abs(π-Ω2[1]);
+		Omega[N,4]=abs(π-Ω3[1]);
+	end
+	return Omega;
 end
 function NewmarkBanchTimeWindow(r,T)
 	D=[0.0,1.0];
@@ -40,7 +82,7 @@ function NewmarkBanchTimeWindow(r,T)
 	f(x)=sin(π*x);
 	g(x)=0*x;
 	e(x,t)=sin(π*x)*cos(π*t)
-    Error = zeros(100,3);
+    Error = zeros(100,5);
     i=1;
     for N in 1:10:1000
         for j in 1:20
@@ -48,22 +90,27 @@ function NewmarkBanchTimeWindow(r,T)
                 Y,h = NewmarkWave(f,g,N,D,Ini,r,T);
             end
             E = []
+	    Amp = []
             x=D[1]:h:D[2];
             t=0;
             for y in Y
                 t=t+r*h
+		A = maximum(e.(x,t));	
+		Amp = push!(Amp, abs(A-maximum(y)));
                 E = push!(E,norm(y-e.(x,t),Inf))
             end
-    		x=D[1]:h:D[2];
+    	    x=D[1]:h:D[2];
             Error[i,1] = Error[i,1]+h;
             Error[i,2] = Error[i,2]+norm(E,Inf);
             Error[i,3] = Error[i,3]+τ;
+	    Error[i,4] = Error[i,4]+(sum(Amp)/length(Amp));
         end
         Error[i,1]=Error[i,1]/20;
         Error[i,2]=Error[i,2]/20;
         Error[i,3]=Error[i,3]/20;
+	Error[i,4]=Error[i,4]/20;
         i=i+1;
-        println((N/1000)*100)
+        println((N/1000)*100);
     end
     return Error;
 end
@@ -73,7 +120,7 @@ function MillerBanchTimeWindow(r,T)
 	f(x)=sin(π*x);
 	g(x)=0*x;
 	e(x,t)=sin(π*x)*cos(π*t)
-    Error = zeros(100,3);
+    Error = zeros(100,5);
     i=1;
     for N in 1:10:1000
         for j in 1:20
@@ -81,20 +128,25 @@ function MillerBanchTimeWindow(r,T)
                 Y,h = MillerWave(f,g,N,D,Ini,r,T);
             end
             E = []
+	    Amp = []
             x=D[1]:h:D[2];
             t=r*h;
             for y in Y
-                t=t+(r*h);
+		t=t+(r*h);
+		A = maximum(e.(x,t));	
+		Amp = push!(Amp, abs(A-maximum(y)));
                 E = push!(E,norm(y-e.(x,t),Inf))
             end
     		x=D[1]:h:D[2];
             Error[i,1] = Error[i,1]+h;
             Error[i,2] = Error[i,2]+norm(E,Inf);
             Error[i,3] = Error[i,3]+τ;
+	    Error[i,4] = Error[i,4]+(sum(Amp)/length(Amp));
         end
         Error[i,1]=Error[i,1]/20;
         Error[i,2]=Error[i,2]/20;
         Error[i,3]=Error[i,3]/20;
+	Error[i,4]=Error[i,4]/20;
         i=i+1;
         println((N/1000)*100)
     end
@@ -552,5 +604,33 @@ function WaveBanch(opt)
 		xlabel(L"Time Step $h_x$")
 		title(string(L"Newmark Integration Error vs Time Step, $ h_t $=",Δx));
 		return R1, R2;
+	elseif opt==11
+        	for i in 1:3
+			figure()
+			R3 = LeapfrogBanchTimeWindow(r[i],[0.0,π/2]);
+			R1 = MillerBanchTimeWindow(r[i],[0.0,π/2]);
+			R2 = NewmarkBanchTimeWindow(r[i],[0.0,π/2]);
+            		loglog(R3[:,1],R3[:,4],marker="o",label=string("Leapfrog r=",round(r[i];digits=1)))
+        	
+            		loglog(R2[:,1],R2[:,4],marker="o",label=string("Newmark r=",round(r[i];digits=1)))
+											    
+            		loglog(R1[:,1],R1[:,4],marker="o",label=string("Miller-Griffiths r=",round(r[i];digits=1)))
+											    
+        		title(string(L"Dissipation Evaluated in t=$ [0,\frac{\pi}{2}]$, $v=1$,$r=",round(r[i];digits=1),L"$, $||\cdot||_2$"));
+        		legend(loc=0,borderaxespad=0);
+		end
+	elseif opt==12
+		for i in 1:3
+			figure()
+			R1 = BanchDispersion(r[i]);
+			loglog(R1[:,1],R1[:,2],marker="o",label=string("Leapfrog r=",round(r[i];digits=1)));
+			loglog(R1[:,1],R1[:,3],marker="o",label=string("Newmark r=",round(r[i];digits=1)));
+			loglog(R1[:,1],R1[:,4],marker="o",label=string("Miller-Griffiths r=",round(r[i];digits=1)));
+			legend(loc=0,borderaxespad=0);
+			title(string(L"Dispersion, $r=",round(r[i];digits=1),L"$"));
+			xlabel(L"Spatial Step Size $h_x$")
+			ylabel(L"Angular Speed Error $e_\omega$");
+			#println(R1);
+		end
 	end
 end

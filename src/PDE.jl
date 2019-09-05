@@ -247,6 +247,8 @@ function LeapfrogWave(f,g,N,D,Ini,r,t,v=1)
 	d2=convert(Array{Float64}, d2);
 	A=spdiagm(-1=>d1[1,:],0=>d2,1=>d1[1,:]);
 	A=(v^2/(h^2))*A;
+	#print(eigvals(Matrix(A))); 
+	#readline();
 	Y = [Ini[1]];
 	Y = append!(Y,V[1]);
 	Y = push!(Y,Ini[2]);
@@ -255,7 +257,7 @@ function LeapfrogWave(f,g,N,D,Ini,r,t,v=1)
 	while true
 		if length(t)==1
 			T = T+ΔT;
-			V=push!(V(2*sparse(I,N,N)-(ΔT)^2*A)*V[end]-V[end-1]);
+			V=push!(V,(2*sparse(I,N,N)-(ΔT)^2*A)*V[end]-V[end-1]);
 			Y = [Ini[1]];
 			Y = append!(Y,V[end]);
 			Y = push!(Y,Ini[2]);
@@ -264,7 +266,7 @@ function LeapfrogWave(f,g,N,D,Ini,r,t,v=1)
 			end
 		elseif length(t)==2
 			T = T+ΔT;
-			V=push!(V(2*sparse(I,N,N)-(ΔT)^2*A)*V[end]-V[end-1]);
+			V=push!(V,(2*sparse(I,N,N)-(ΔT)^2*A)*V[end]-V[end-1]);
 			Y = [Ini[1]];
 			Y = append!(Y,V[end]);
 			Y = push!(Y,Ini[2]);

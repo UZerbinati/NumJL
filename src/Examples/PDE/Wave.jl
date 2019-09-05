@@ -32,6 +32,37 @@ function waveExample(v=1,Auto=true)
 	end
 	return(err);
 end
+function waveExampleDump(v=1,Auto=true)
+	#We will try here to solve the differential equation of wave diffusion.
+	N=100;
+	D=[0.0,1.0];
+	Ini=[0.0,0.0];
+	f(x)=sin(15*π*x);
+	g(x)=0*x;
+	h=(D[2]-D[1])/(N+1);
+	r=0.5;
+	t = r*h;
+	errA = [];
+	while 0 < t <π/2
+		if Auto
+			sleep(0.1);
+		else
+			readline();
+		end
+		PyPlot.clf();
+		ax = gca()
+		ax[:set_ylim]([-1.3,1.3])
+		Y,h = LeapfrogWave(f,g,N,D,Ini,r,t,v);
+		Δt = r*h;
+		t=t+Δt;
+		x=D[1]:h:D[2];
+		plot(x,Y)
+		plot([0.0,1.0],[1.0,1.0],"r-");
+		title(string("Time: ",t," r:",r));
+		
+	end
+	return(err);
+end
 function TsunamiWaveExample(v=1,Auto=true)
 	#We will try here to solve the differential equation of wave diffusion.
 	N=100;
