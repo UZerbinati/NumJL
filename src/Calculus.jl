@@ -20,3 +20,10 @@ end
 function transport(f0,c,x,t);
 	return f0(x-c*t);
 end
+function TrapezInt(V,h)
+	S = 0;
+	for i in 1:length(V)-1
+		S = S + h*(V[i]+V[i+1])/2;
+	end
+	return S;
+end

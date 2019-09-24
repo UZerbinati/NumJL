@@ -4,9 +4,11 @@ function LeapfrogBanchTimeWindow(r,T)
 	f(x)=sin(π*x);
 	g(x)=0*x;
 	e(x,t)=sin(π*x)*cos(π*t)
-    Error = zeros(100,5);
+	Energy = [];
+	MaxIT = 1010;
+	Error = zeros(Int64(MaxIT/10),5);
     i=1;
-    for N in 1:10:1000
+    for N in 10:10:MaxIT
         for j in 1:20
             τ = @elapsed begin
                 Y,h = LeapfrogWave(f,g,N,D,Ini,r,T);
@@ -15,27 +17,31 @@ function LeapfrogBanchTimeWindow(r,T)
 	    Amp = [];
             x=D[1]:h:D[2];
             t=r*h;
-            for y in Y
+	    for k in 2:length(Y)-1
+		y = Y[k];
 		t=t+r*h;
 		A = maximum(e.(x,t));
                 E = push!(E,norm(y-e.(x,t),Inf))
 		Amp = push!(Amp,abs(A-maximum(y)));
-            end
-    		x=D[1]:h:D[2];
+		Energy = push!(Energy,abs(0.5*(π^2)-DirichletEnergy(Y[k-1],Y[k+1],h,r*h))); 
+	    end
+    	    x=D[1]:h:D[2];
             Error[i,1] = Error[i,1]+h;
             Error[i,2] = Error[i,2]+norm(E,Inf);
             Error[i,3] = Error[i,3]+τ;
 	    Error[i,4] = Error[i,4]+(sum(Amp)/length(Amp));
+	    Error[i,5] = Error[i,5]+Energy[end];
         end
 
         Error[i,1] = Error[i,1]/20;
         Error[i,2] = Error[i,2]/20;
         Error[i,3] = Error[i,3]/20;
 	Error[i,4] = Error[i,4]/20;
+	Error[i,5] = Error[i,5]/20;
 
 	#println("Error: ",Error[i,2]);
         i=i+1;
-        println((N/1000)*100);
+        println((N/MaxIT)*100);
     end
     return Error;
 end
@@ -82,9 +88,11 @@ function NewmarkBanchTimeWindow(r,T)
 	f(x)=sin(π*x);
 	g(x)=0*x;
 	e(x,t)=sin(π*x)*cos(π*t)
-    Error = zeros(100,5);
+	MaxIT = 1010;
+	Error = zeros(Int64(MaxIT/10),5);
+	Energy = [];
     i=1;
-    for N in 1:10:1000
+    for N in 10:10:MaxIT
         for j in 1:20
             τ = @elapsed begin
                 Y,h = NewmarkWave(f,g,N,D,Ini,r,T);
@@ -93,24 +101,29 @@ function NewmarkBanchTimeWindow(r,T)
 	    Amp = []
             x=D[1]:h:D[2];
             t=0;
-            for y in Y
+	    for k in 2:length(Y)-1
+		y = Y[k];
                 t=t+r*h
 		A = maximum(e.(x,t));	
 		Amp = push!(Amp, abs(A-maximum(y)));
                 E = push!(E,norm(y-e.(x,t),Inf))
+		Energy = push!(Energy,abs(0.5*(π^2)-DirichletEnergy(Y[k-1],Y[k+1],h,r*h))); 
             end
     	    x=D[1]:h:D[2];
             Error[i,1] = Error[i,1]+h;
             Error[i,2] = Error[i,2]+norm(E,Inf);
             Error[i,3] = Error[i,3]+τ;
 	    Error[i,4] = Error[i,4]+(sum(Amp)/length(Amp));
+	   
+	    Error[i,5] = Error[i,5]+(sum(Energy)/length(Energy));
         end
         Error[i,1]=Error[i,1]/20;
         Error[i,2]=Error[i,2]/20;
         Error[i,3]=Error[i,3]/20;
 	Error[i,4]=Error[i,4]/20;
+	Error[i,5]=Error[i,5]/20;
         i=i+1;
-        println((N/1000)*100);
+        println((N/MaxIT)*100);
     end
     return Error;
 end
@@ -445,7 +458,7 @@ function WaveBanch(opt)
 		ylim(10^(-8),10^(10));
 		println(R3);
         figure()
-        for i in 1:2
+        for i in 1:3
              R4 = LeapfrogBanchTimeWindow(r[i],[0,π/2]);
              loglog(R4[:,3],R4[:,2],marker="o",label=string("Leapfrog r=",round(r[i];digits=1)))
         end
@@ -632,5 +645,26 @@ function WaveBanch(opt)
 			ylabel(L"Angular Speed Error $e_\omega$");
 			#println(R1);
 		end
-	end
+      elseif opt==13	
+        figure()
+        for i in 1:3
+             R5 = LeapfrogBanchTimeWindow(r[i],[0,π/2]);
+	     saveArray(string("Leapfrog_",r[i],".csv"),["h","Error","Timing", "Amplitude","Energy"],R5);
+             loglog(R5[:,1],R5[:,5],marker="o",label=string("Leapfrog r=",round(r[i];digits=1)))
+        end
+        title(L"Leapfrog Method Energy Evaluated in t=$ [0,\frac{\pi}{2}]$, $v=1$, $||\cdot||_2$")
+        legend(loc=0,borderaxespad=0);
+	return R5;
+      elseif opt==14
+        figure()
+        for i in 1:3
+             R6 = NewmarkBanchTimeWindow(r[i],[0,π/2]);
+	     saveArray(string("Newmark_",r[i],".csv"),["h","Error","Timing", "Amplitude","Energy"],R6);
+             loglog(R6[:,1],R6[:,5],marker="o",label=string("Newmark r=",round(r[i];digits=1)))
+        end
+        title(L"Newmark Method Energy Evaluated in t=$ [0,\frac{\pi}{2}]$, $v=1$, $||\cdot||_2$")
+        legend(loc=0,borderaxespad=0);
+
+    	return R6;
+      end
 end

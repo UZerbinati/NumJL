@@ -2,15 +2,12 @@ module NumJL
 	using LinearAlgebra
 	using SparseArrays
 	using Dierckx
-	
-	#For Dumping Testing Only
-	using FFTW
-	using DSP
 
 	#Only used in some specific case, methods should work even without.
 	using PyPlot
 
 	#BASE
+	include("util.jl");
 	include("LA.jl")
 	include("Calculus.jl");
 	include("Zeros.jl");
