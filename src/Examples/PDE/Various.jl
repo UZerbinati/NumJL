@@ -71,7 +71,7 @@ function DirichletEnergy(U,U2,h,δ)
 	#println(size(U),size(D));
 	dx = ((1/(2*h))*D*U[2:end-1]).^2;
 	I = TrapezInt(dx,h);
-	I = I+TrapezInt((∂u[2:end-1]).^2,δ);
+	I = I+TrapezInt((∂u[2:end-1]).^2,h);
 	return I;
 
 end
@@ -79,15 +79,15 @@ function Energy()
 	u(x,t) = sin.(π*x)*cos.(π*t);
 	dx(x,t) = π*cos.(π*x)*cos.(π*t);
 	dt(x,t) = -π*sin.(π*x)*sin.(π*t);
-	h=0.0001;
-	δ = 0.0001;
+	h=0.001;
+	δ = 0.0005;
 	X = 0:h:1;
 	
 	U = u(X,0);
 	U1 = u(X,δ);
 	U2 = u(X,2*δ);
 	
-	D = diagm(-1 => (-1)*ones(length(X)-3)[1,:], 1 => ones(length(X)-3));
+	D = diagm(-1 => (-1)*ones(length(X)-3), 1 => ones(length(X)-3));
 	println(size(U));
 	println(size(D));
 	#println(D);
@@ -103,6 +103,6 @@ function Energy()
 	#I=TrapezInt(U[2:end],h);
 	I = TrapezInt(((1/(2*h))*D*U[2:end-1]).^2,h);
 	I = I+TrapezInt((∂u[2:end-1]).^2,δ);
-	println("Numerical Energy: ",I);
+	println("Numerical Energy: ",DirichletEnergy(U,U2,h,δ));
 	println("Exact Energy: ", 0.5*(π^2));
 end

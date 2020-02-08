@@ -1,1 +1,0 @@
-An explantion to this Tables, we are testing the Leapfrog Scheme and Newmark Scheme, the CSV file missing and FE infront have as energy a mean of the energy error overall [0,0.5pi], while the one with FE infront takes into account only the energy error at t=0.5pi;
