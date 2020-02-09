@@ -22,14 +22,14 @@ function LeapfrogBanchTimeWindow(r,T)
 		t=t+r*h;
 		A = maximum(e.(x,t));
                 E = push!(E,norm(y-e.(x,t),Inf))
-		Amp = push!(Amp,abs(A-maximum(y)));
+		Amp = push!(Amp,abs(abs(A)-abs(maximum(y))));
 		Energy = push!(Energy,abs(0.5*(π^2)-DirichletEnergy(Y[k-1],Y[k+1],h,r*h))); 
 	    end
     	    x=D[1]:h:D[2];
             Error[i,1] = Error[i,1]+h;
             Error[i,2] = Error[i,2]+norm(E,Inf);
             Error[i,3] = Error[i,3]+τ
-	    Error[i,4] = Error[i,4]+(sum(Amp)/length(Amp));
+	    Error[i,4] = Error[i,4]+Amp[end];
 	    Error[i,5] = Error[i,5]+Energy[end];
         end
 
@@ -105,7 +105,7 @@ function NewmarkBanchTimeWindow(r,T)
 		y = Y[k];
                 t=t+r*h
 		A = maximum(e.(x,t));	
-		Amp = push!(Amp, abs(A-maximum(y)));
+		Amp = push!(Amp,abs(abs(A)-abs(maximum(y))));
                 E = push!(E,norm(y-e.(x,t),Inf))
 		Energy = push!(Energy,abs(0.5*(π^2)-DirichletEnergy(Y[k-1],Y[k+1],h,r*h))); 
             end
@@ -113,7 +113,7 @@ function NewmarkBanchTimeWindow(r,T)
             Error[i,1] = Error[i,1]+h;
             Error[i,2] = Error[i,2]+norm(E,Inf);
             Error[i,3] = Error[i,3]+τ;
-	    Error[i,4] = Error[i,4]+(sum(Amp)/length(Amp));
+	    Error[i,4] = Error[i,4]+Amp[end];
 	   
 	    Error[i,5] = Error[i,5]+Energy[end];
         end
@@ -147,14 +147,14 @@ function MillerBanchTimeWindow(r,T)
             for y in Y
 		t=t+(r*h);
 		A = maximum(e.(x,t));	
-		Amp = push!(Amp, abs(A-maximum(y)));
+		Amp = push!(Amp,abs(abs(A)-abs(maximum(y))));
                 E = push!(E,norm(y-e.(x,t),Inf))
             end
     		x=D[1]:h:D[2];
             Error[i,1] = Error[i,1]+h;
             Error[i,2] = Error[i,2]+norm(E,Inf);
             Error[i,3] = Error[i,3]+τ;
-	    Error[i,4] = Error[i,4]+(sum(Amp)/length(Amp));
+	    Error[i,4] = Error[i,4]+Amp[end];
         end
         Error[i,1]=Error[i,1]/20;
         Error[i,2]=Error[i,2]/20;
@@ -629,7 +629,7 @@ function WaveBanch(opt)
 		R1, Δx = MillerBanchTimeStep([0.0,π/2]);
 		loglog(R1[:,2],R1[:,3],marker="o",label=L"$h_x=0.0001$");
 		R2, Δx = MillerBanchSpaceStep([0.0,π/2]);
-		loglog(R2[:,2],R2[:,3],marker="o",label="h_t=0.0001");
+		loglog(R2[:,2],R2[:,3],marker="o",label=L"$h_t=0.0001$");
 		ylabel(L"Error $ ||\cdot||_\infty $");
 		title("Miller-Griffiths Scheme");
 		legend(loc=0,borderaxespad=0);
