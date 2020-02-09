@@ -1,4 +1,4 @@
-opt = input("Which set of test?");
+opt = readline("Which set of test?");
 if opt==1
 	try
 		print("TEST 1\n");
