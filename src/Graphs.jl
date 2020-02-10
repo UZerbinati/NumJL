@@ -1,3 +1,4 @@
+include("NumJL");
 function Graph(opt)
 	if opt==1
 		try

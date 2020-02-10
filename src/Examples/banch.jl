@@ -660,7 +660,7 @@ function WaveBanch(opt)
 											    
             		loglog(R1[:,1],R1[:,4],marker="o",label=string("Miller-Griffiths r=",round(r[i];digits=1)))
 											    
-        		title(string(L"Dissipation Evaluated in t=$ [0,\frac{\pi}{2}]$, $v=1$,$r=",round(r[i];digits=1),L"$, $||\cdot||_2$"));
+        		title(string(L"Dissipation Evaluated in t$\in  [0,\frac{\pi}{2}]$, $c=1$,$r=",round(r[i];digits=1),L"$, $||\cdot||_2$"));
         		legend(loc=0,borderaxespad=0);
 		end
 	elseif opt==12
@@ -683,7 +683,7 @@ function WaveBanch(opt)
 	     saveArray(string("Leapfrog_",r[i],".csv"),["h","Error","Timing", "Amplitude","Energy"],R5);
              loglog(R5[:,1],R5[:,5],marker="o",label=string("Leapfrog r=",round(r[i];digits=1)))
         end
-        title(L"Leapfrog Method Energy Evaluated in t=$ [0,\frac{\pi}{2}]$, $v=1$, $||\cdot||_2$")
+        title(L"Leapfrog Method Energy Evaluated in t$\in [0,\frac{\pi}{2}]$, $c=1$, $||\cdot||_2$")
         legend(loc=0,borderaxespad=0);
 	return R5;
       elseif opt==14
@@ -693,7 +693,7 @@ function WaveBanch(opt)
 	     saveArray(string("Newmark_",r[i],".csv"),["h","Error","Timing", "Amplitude","Energy"],R6);
              loglog(R6[:,1],R6[:,5],marker="o",label=string("Newmark r=",round(r[i];digits=1)))
         end
-        title(L"Newmark Method Energy Evaluated in t=$ [0,\frac{\pi}{2}]$, $v=1$, $||\cdot||_2$")
+        title(L"Newmark Method Energy Evaluated in t$\in [0,\frac{\pi}{2}]$, $c=1$, $||\cdot||_2$")
         legend(loc=0,borderaxespad=0);
 
     	return R6;
