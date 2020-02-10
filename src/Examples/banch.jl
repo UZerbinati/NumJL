@@ -662,6 +662,7 @@ function WaveBanch(opt)
 											    
         		title(string(L"Dissipation Evaluated in t$\in  [0,\frac{\pi}{2}]$, $c=1$,$r=",round(r[i];digits=1),L"$, $||\cdot||_2$"));
         		legend(loc=0,borderaxespad=0);
+			savefig("A11.png");
 		end
 	elseif opt==12
 		for i in 1:3
@@ -674,7 +675,8 @@ function WaveBanch(opt)
 			title(string(L"Dispersion, $r=",round(r[i];digits=1),L"$"));
 			xlabel(L"Spatial Step Size $h_x$")
 			ylabel(L"Angular Speed Error $e_\omega$");
-			#println(R1);
+			legend(loc=0,borderaxespad=0);
+			savefig("A12.png");
 		end
       elseif opt==13	
         figure()
@@ -685,6 +687,7 @@ function WaveBanch(opt)
         end
         title(L"Leapfrog Method Energy Evaluated in t$\in [0,\frac{\pi}{2}]$, $c=1$, $||\cdot||_2$")
         legend(loc=0,borderaxespad=0);
+	savefig("A13.png");
 	return R5;
       elseif opt==14
         figure()
@@ -695,7 +698,8 @@ function WaveBanch(opt)
         end
         title(L"Newmark Method Energy Evaluated in t$\in [0,\frac{\pi}{2}]$, $c=1$, $||\cdot||_2$")
         legend(loc=0,borderaxespad=0);
-
+	legend(loc=0,borderaxespad=0);
+	savefig("A14.png");
     	return R6;
       end
 end
