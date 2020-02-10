@@ -1,4 +1,4 @@
-include("NumJL");
+include("NumJL.js");
 function Graph(opt)
 	if opt==1
 		try
