@@ -662,7 +662,9 @@ function WaveBanch(opt)
 											    
         		title(string(L"Dissipation Evaluated in t$\in  [0,\frac{\pi}{2}]$, $c=1$,$r=",round(rs[i];digits=3),L"$, $||\cdot||_2$"));
         		legend(loc=0,borderaxespad=0);
-			savefig("A11.png");
+			xlabel(L"Space Step Size $h_x$");
+			ylabel(L"Amplitude Error $e_A$");
+			savefig(string("A11_",i,".png"));
 		end
 	elseif opt==12
 		for i in 1:3

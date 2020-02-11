@@ -57,12 +57,6 @@ function Graph(opt)
 		end
 	elseif opt == 2
 		try
-			print("TEST 9\n");
-			NumJL.WaveBanch(9)
-		catch e
-			print(e)
-		end
-		try
 			print("TEST 11\n");
 			NumJL.WaveBanch(11)
 		catch e
