@@ -80,5 +80,11 @@ function Graph(opt)
 		catch e
 			print(e)
 		end
+		try
+			print("TEST 15\n");
+			NumJL.WaveBanch(15)
+		catch e
+			print(e)
+		end
 	end
 end
