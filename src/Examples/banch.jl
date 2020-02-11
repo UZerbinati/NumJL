@@ -16,7 +16,7 @@ function LeapfrogBanchTimeWindow(r,T)
             E = []
 	    Amp = [];
             x=D[1]:h:D[2];
-            t=2*r*h;
+            t=r*h;
 	    for k in 2:length(Y)-1
 		y = Y[k];
 		t=t+r*h;
@@ -660,7 +660,7 @@ function WaveBanch(opt)
 											    
             		loglog(R1[:,1],R1[:,4],marker="o",label=string("Miller-Griffiths r=",round(r[i];digits=1)))
 											    
-        		title(string(L"Dissipation Evaluated in t$\in  [0,\frac{\pi}{2}]$, $c=1$,$r=",round(r[i];digits=1),L"$, $||\cdot||_2$"));
+        		title(string(L"Dissipation Evaluated in t$\in  [0,\frac{\pi}{2}]$, $c=1$,$r=",round(rs[i];digits=3),L"$, $||\cdot||_2$"));
         		legend(loc=0,borderaxespad=0);
 			savefig("A11.png");
 		end
@@ -672,7 +672,7 @@ function WaveBanch(opt)
 			loglog(R1[:,1],R1[:,3],marker="o",label=string("Newmark r=",round(r[i];digits=1)));
 			loglog(R1[:,1],R1[:,4],marker="o",label=string("Miller-Griffiths r=",round(r[i];digits=1)));
 			legend(loc=0,borderaxespad=0);
-			title(string(L"Dispersion, $r=",round(r[i];digits=1),L"$"));
+			title(string(L"Dispersion, $r=",round(rs[i];digits=3),L"$"));
 			xlabel(L"Spatial Step Size $h_x$")
 			ylabel(L"Angular Speed Error $e_\omega$");
 			legend(loc=0,borderaxespad=0);
@@ -687,6 +687,8 @@ function WaveBanch(opt)
         end
         title(L"Leapfrog Method Energy Evaluated in t$\in [0,\frac{\pi}{2}]$, $c=1$, $||\cdot||_2$")
         legend(loc=0,borderaxespad=0);
+	xlabel(L"Space Step Size $h_x$");
+	ylabel(L"Energy Error $e_E$");
 	savefig("A13.png");
 	return R5;
       elseif opt==14
@@ -699,7 +701,23 @@ function WaveBanch(opt)
         title(L"Newmark Method Energy Evaluated in t$\in [0,\frac{\pi}{2}]$, $c=1$, $||\cdot||_2$")
         legend(loc=0,borderaxespad=0);
 	legend(loc=0,borderaxespad=0);
+	xlabel(L"Space Step Size $h_x$");
+	ylabel(L"Energy Error $e_E$");
 	savefig("A14.png");
+    	return R6;
+      elseif opt==15
+        figure()
+        for i in 1:3
+             R6 = MillerBanchTimeWindow(r[i],[0,π/2]);
+	     saveArray(string("Miller_",r[i],".csv"),["h","Error","Timing", "Amplitude","Energy"],R6);
+             loglog(R6[:,1],R6[:,5],marker="o",label=string("Newmark r=",round(r[i];digits=1)))
+        end
+        title(L"Miller Method Energy Evaluated in t$\in [0,\frac{\pi}{2}]$, $c=1$, $||\cdot||_2$")
+        legend(loc=0,borderaxespad=0);
+	legend(loc=0,borderaxespad=0);
+	xlabel(L"Space Step Size $h_x$");
+	ylabel(L"Energy Error $e_E$");
+	savefig("A15.png");
     	return R6;
       end
 end
