@@ -1,3 +1,4 @@
+MaxIT = 1010;
 function LeapfrogBanchTimeWindow(r,T)
 	D=[0.0,1.0];
 	Ini=[0.0,0.0];
@@ -5,7 +6,6 @@ function LeapfrogBanchTimeWindow(r,T)
 	g(x)=0*x;
 	e(x,t)=sin(π*x)*cos(π*t)
 	Energy = [];
-	MaxIT = 1010;
 	Error = zeros(Int64(MaxIT/10),5);
     i=1;
     for N in 10:10:MaxIT
@@ -16,7 +16,7 @@ function LeapfrogBanchTimeWindow(r,T)
             E = []
 	    Amp = [];
             x=D[1]:h:D[2];
-            t=r*h;
+            t=2*r*h;
 	    for k in 2:length(Y)-1
 		y = Y[k];
 		t=t+r*h;
@@ -47,7 +47,7 @@ function LeapfrogBanchTimeWindow(r,T)
 end
 function BanchDispersion(r)
 	Omega = zeros(100,4);
-	for N in 1:1:100
+	for N in 1:10:MaxIT
 		D=[0.0,1.0];
 		h = (D[2]-D[1])/(N+1);
 		dt = r*h;
@@ -88,7 +88,6 @@ function NewmarkBanchTimeWindow(r,T)
 	f(x)=sin(π*x);
 	g(x)=0*x;
 	e(x,t)=sin(π*x)*cos(π*t)
-	MaxIT = 1010;
 	Error = zeros(Int64(MaxIT/10),5);
 	Energy = [];
     i=1;
@@ -135,7 +134,7 @@ function MillerBanchTimeWindow(r,T)
 	e(x,t)=sin(π*x)*cos(π*t)
     Error = zeros(100,5);
     i=1;
-    for N in 1:10:1000
+    for N in 1:10:MaxIT
         for j in 1:20
             τ = @elapsed begin
                 Y,h = MillerWave(f,g,N,D,Ini,r,T);
@@ -651,16 +650,16 @@ function WaveBanch(opt)
 	elseif opt==11
         	for i in 1:3
 			figure()
-			R3 = LeapfrogBanchTimeWindow(r[i],[0.0,π/2]);
-			R1 = MillerBanchTimeWindow(r[i],[0.0,π/2]);
-			R2 = NewmarkBanchTimeWindow(r[i],[0.0,π/2]);
+			R3 = LeapfrogBanchTimeWindow(rs[i],[0.0,π/2]);
+			R1 = MillerBanchTimeWindow(rs[i],[0.0,π/2]);
+			R2 = NewmarkBanchTimeWindow(rs[i],[0.0,π/2]);
             		loglog(R3[:,1],R3[:,4],marker="o",label=string("Leapfrog r=",round(r[i];digits=1)))
         	
             		loglog(R2[:,1],R2[:,4],marker="o",label=string("Newmark r=",round(r[i];digits=1)))
 											    
             		loglog(R1[:,1],R1[:,4],marker="o",label=string("Miller-Griffiths r=",round(r[i];digits=1)))
 											    
-        		title(string(L"Dissipation Evaluated in t$\in  [0,\frac{\pi}{2}]$, $c=1$,$r=",round(rs[i];digits=3),L"$, $||\cdot||_2$"));
+        		title(string(L"Dissipation Evaluated in t$\in  [0,\frac{\pi}{2}]$, $c=1$,$r=",round(r[i];digits=3),L"$, $||\cdot||_2$"));
         		legend(loc=0,borderaxespad=0);
 			xlabel(L"Space Step Size $h_x$");
 			ylabel(L"Amplitude Error $e_A$");
@@ -669,21 +668,21 @@ function WaveBanch(opt)
 	elseif opt==12
 		for i in 1:3
 			figure()
-			R1 = BanchDispersion(r[i]);
+			R1 = BanchDispersion(rs[i]);
 			loglog(R1[:,1],R1[:,2],marker="o",label=string("Leapfrog r=",round(r[i];digits=1)));
 			loglog(R1[:,1],R1[:,3],marker="o",label=string("Newmark r=",round(r[i];digits=1)));
 			loglog(R1[:,1],R1[:,4],marker="o",label=string("Miller-Griffiths r=",round(r[i];digits=1)));
 			legend(loc=0,borderaxespad=0);
-			title(string(L"Dispersion, $r=",round(rs[i];digits=3),L"$"));
+			title(string(L"Dispersion, $r=",round(r[i];digits=3),L"$"));
 			xlabel(L"Spatial Step Size $h_x$")
 			ylabel(L"Angular Speed Error $e_\omega$");
 			legend(loc=0,borderaxespad=0);
-			savefig("A12.png");
+			savefig(string("A12_",i,".png"));
 		end
       elseif opt==13	
         figure()
         for i in 1:3
-             R5 = LeapfrogBanchTimeWindow(r[i],[0,π/2]);
+             R5 = LeapfrogBanchTimeWindow(rs[i],[0,π/2]);
 	     saveArray(string("Leapfrog_",r[i],".csv"),["h","Error","Timing", "Amplitude","Energy"],R5);
              loglog(R5[:,1],R5[:,5],marker="o",label=string("Leapfrog r=",round(r[i];digits=1)))
         end
@@ -696,7 +695,7 @@ function WaveBanch(opt)
       elseif opt==14
         figure()
         for i in 1:3
-             R6 = NewmarkBanchTimeWindow(r[i],[0,π/2]);
+             R6 = NewmarkBanchTimeWindow(rs[i],[0,π/2]);
 	     saveArray(string("Newmark_",r[i],".csv"),["h","Error","Timing", "Amplitude","Energy"],R6);
              loglog(R6[:,1],R6[:,5],marker="o",label=string("Newmark r=",round(r[i];digits=1)))
         end
@@ -710,7 +709,7 @@ function WaveBanch(opt)
       elseif opt==15
         figure()
         for i in 1:3
-             R6 = MillerBanchTimeWindow(r[i],[0,π/2]);
+             R6 = MillerBanchTimeWindow(rs[i],[0,π/2]);
 	     saveArray(string("Miller_",r[i],".csv"),["h","Error","Timing", "Amplitude","Energy"],R6);
              loglog(R6[:,1],R6[:,5],marker="o",label=string("Newmark r=",round(r[i];digits=1)))
         end
