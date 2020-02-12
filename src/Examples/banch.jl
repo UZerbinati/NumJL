@@ -99,7 +99,7 @@ function NewmarkBanchTimeWindow(r,T)
             E = []
 	    Amp = []
             x=D[1]:h:D[2];
-            t=0;
+            t=r*h;
 	    for k in 2:length(Y)-1
 		y = Y[k];
                 t=t+r*h
